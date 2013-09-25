@@ -1,36 +1,45 @@
 import socket
 import sys
 import xmpp
+import getpass
 
 IP = '127.0.0.1'
 PORT = 5222
 BUFFER_SIZE = 1024
 
-username = 'user1'
-pwd = '1'
 to = 'usr2'
 msg = 'Hail'
 
-jid = xmpp.JID(username)
-connection = xmpp.Client('127.0.0.1')
+def messageCB(sess,mess):
+    nick=mess.getFrom().getResource()
+    text=mess.getBody()
+    print nick,text
+    print mess
+
+# User name and password
+print "User:"
+userName = sys.stdin.readline()
+userName = userName.replace("\n","")
+pwd = getpass.getpass()
+
+# Connect with the server
+#jid = xmpp.JID(userName)
+connection = xmpp.Client(IP)
 print "Connecting..."
 connection.connect((IP, PORT))
+connection.RegisterHandler("message", messageCB)
+result = connection.auth(userName, pwd, 'botty')
+connection.sendInitPresence()
+
 print "Connected!"
-#result = connection.auth(jid.getNode(), pwd)
-result = connection.auth(username, pwd, 'botty')
-print "Result: ", result
+
 connection.send(xmpp.Message(to,msg))
-#print "Result: ", result 
-#connection.sendInitPresence()
-#connection.disconnect()
 
-#message = xmpp.Message('me', 'Surprise motherfucker')
-#connection.send(message)
+while True:	
+	connection.Process(1)
+	
 
-
-while connection.Process(1):
-	pass
-
+connection.disconnect()
 #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #s.connect((IP, PORT))
 #print "Type a message:"

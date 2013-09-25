@@ -50,22 +50,27 @@ def handler(client_conn, client_addr):
 	print "Digest:", userDigest # Debug print
 	
 	# Server response: Authentication status
-	if 1:
-		authResponse = "<iq type=\'result\' id=\'" + str(iqId) + "'/>"
-		client_conn.send(authResponse)
-	else:
-		authResponse = "<iq type=\'result\' id=\'" + str(iqId) + "'><error code=\'401\' type=\'auth\'> <not-authorized xmlns=\'urn:ietf:params:xml:ns:xmpp-stanzas\'/> </error></iq>"
-		client_conn.send(authResponse)
+	authResponse = "<iq type=\'result\' id=\'" + str(iqId) + "'/>"
+	client_conn.send(authResponse)
+	
+	# Client: Presence
+	data = client_conn.recv(BUFFER_SIZE)
 	
 	# Message handler	
 	while 1:
+		raw_input("> ")
 		data = client_conn.recv(BUFFER_SIZE)
-		print "Message from client: ", data
+		client_conn.send("<message to=\"eu@127.0.0.1/botty\" from=\"ojl@127.0.0.1/botty\" id=\"5\"> <body>Hail</body> </message>")
 		
-		if data == "close\n":
-			client_conn.send("Bye..")
-			client_conn.close()
-			break
+	
+	#	data = client_conn.recv(BUFFER_SIZE)
+	#	print "Message from client: ", data
+	#	client_conn.send("<iq from=\"Eu@127.0.0.1/botty\" type=\"get\" id=\"3\"><query xmlns=\"jabber:iq:roster\" /></iq>")
+	#	if data == "</stream:stream>":
+	#		#client_conn.send("<iq from=\"Eu@127.0.0.1/botty\" type=\"get\" id=\"3\"><query xmlns=\"jabber:iq:roster\" /></iq>")
+	#		client_conn.send("Bye..")
+	#		client_conn.close()
+	#		break
 	print "Connetion with ", client_addr, " is closed"
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
